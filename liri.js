@@ -11,41 +11,45 @@ var spotify = new Spotify(keys.spotify);
 
 
 // The 3rd argument which activates the switch statement
+//runs everything from the 4+ argument and turns it into a single string
 var command = process.argv[2];
-//runs everything from the 4+ argument and turns it into a single string 
+ 
 var nodeArgs = process.argv;
 var input = "";
     for (var i=3; i<nodeArgs.length; i++){
         input = input + " " + nodeArgs[i];
     };
-    console.log(input.trim());
+    input = input.trim()
+    console.log(input);
 
-
-switch (command){
-    case "my-tweets":
-        tweets();
-        break;
-    case "spotify-this-song":
-        //if there is an input use the input and call the spotify API
-        if(input.trim()){
-            music();
-        //if there is no input, use x as input and call the spotify API 
-        } else {
-            input="The Sign";
-            music();
-        }
-        break;
-    case "movie-this":
-        if(input.trim()){
-            movie();
-        } else {
-            input="Mr. Nobody";
-            movie();
-        }
-        break;
-    case "do-what-it-says":
-        doThis();
-        break;
+execute(command);
+function execute (command) {
+    switch (command){
+        case "my-tweets":
+            tweets();
+            break;
+        case "spotify-this-song":
+            // if there is an input use the input and call the spotify API
+            if(input){
+                music();
+            //if there is no input, use x as input and call the spotify API 
+            } else {
+                input="The Sign";
+                music();
+            }
+            break;
+        case "movie-this":
+            if(input){
+                movie();
+            } else {
+                input="Mr. Nobody";
+                movie();
+            }
+            break;
+        case "do-what-it-says":
+            doThis();
+            break;
+    }
 }
 
 function tweets() {
@@ -114,6 +118,7 @@ function doThis() {
                 console.log (dataArr);
             command = dataArr[0];
             input = dataArr[1];
+            execute(command)
         }
     });
 }
