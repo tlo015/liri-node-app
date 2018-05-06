@@ -18,7 +18,8 @@ var input = "";
     for (var i=3; i<nodeArgs.length; i++){
         input = input + " " + nodeArgs[i];
     };
-    console.log(input);
+    console.log(input.trim());
+
 
 switch (command){
     case "my-tweets":
@@ -26,7 +27,7 @@ switch (command){
         break;
     case "spotify-this-song":
         //if there is an input use the input and call the spotify API
-        if(input){
+        if(input.trim()){
             music();
         //if there is no input, use x as input and call the spotify API 
         } else {
@@ -35,7 +36,7 @@ switch (command){
         }
         break;
     case "movie-this":
-        if(input){
+        if(input.trim()){
             movie();
         } else {
             input="Mr. Nobody";
@@ -52,11 +53,9 @@ function tweets() {
     client.get('statuses/user_timeline', params, function(error, tweets, response) {
         if (!error) {
             for (var i=0; i<tweets.length; i++) {
-                console.log(
-                    "Date: " + tweets[i].created_at.substr(0,10) + 
-                    "\n" + tweets[i].text + 
-                    "\n"
-                );
+                console.log("Date: " + tweets[i].created_at.substr(0,10));
+                console.log(tweets[i].text);
+                console.log("\n");
             }
         } 
     });
@@ -67,57 +66,54 @@ function music() {
     // if(input === undefined) {
     //     input = "The Sign"
     // }
-    spotify.search({type: 'track', query: input}, function(error, data) {
+    spotify.search({type: 'track', query: input.trim()}, function(error, data) {
         if (error) {
             console.log (error);
             return;
         } else {
             var songName = data.tracks.items[0];
-            console.log(
-                "Artist: " + songName.artists[0].name +
-                "\nSong Name: " + songName.name +
-                "\nSong Preview URL: " + songName.preview_url+
-                "\nAlbum: " + songName.album.name
-            );
+            console.log("Artist: " + songName.artists[0].name);
+            console.log("Song Name: " + songName.name);
+            console.log("Song Preview URL: " + songName.preview_url);
+            console.log("Album: " + songName.album.name);
         }
     });      
 }
 
 function movie() {
-    // Create an empty variable for holding the movie name
-var movieName = "";
+    // Then run a request to the OMDB API with the movie specified
+    var queryUrl = "http://www.omdbapi.com/?t=" + input.trim() + "&y=&plot=short&apikey=trilogy";
+        // This line is just to help us debug against the actual URL.
+        console.log(queryUrl);
 
-// Loop through all the words in the node argument
-// And do a little for-loop magic to handle the inclusion of "+"s
-for (var i = 2; i < nodeArgs.length; i++) {
-
-  if (i > 2 && i < nodeArgs.length) {
-
-    movieName = movieName + "+" + nodeArgs[i];
-
-  }
-
-  else {
-
-    movieName += nodeArgs[i];
-
-  }
+    request(queryUrl, function(error, response, body) {
+        // If the request is successful
+        if (!error && response.statusCode === 200) {
+             // Parse the body of the site
+            var json = JSON.parse(body);
+            console.log("Title: " + json.Title);
+            console.log("Year: " + json.Year);
+            console.log("IMDB Rating: " + json.imdbRating);
+            console.log("Rotten Tomatoes Rating: " + json.Ratings[1].Value);
+            console.log("Produced Country: " + json.Country );
+            console.log("Language: " + json.Language);
+            console.log("Plot: " + json.Plot);
+            console.log("Actors: " + json.Actors);            
+        }
+    });
 }
 
-// Then run a request to the OMDB API with the movie specified
-var queryUrl = "http://www.omdbapi.com/?t=" + movieName + "&y=&plot=short&apikey=trilogy";
-
-// This line is just to help us debug against the actual URL.
-console.log(queryUrl);
-
-request(queryUrl, function(error, response, body) {
-
-  // If the request is successful
-  if (!error && response.statusCode === 200) {
-
-    // Parse the body of the site and recover just the imdbRating
-    // (Note: The syntax below for parsing isn't obvious. Just spend a few moments dissecting it).
-    console.log("Release Year: " + JSON.parse(body).Year);
-  }
-});
+function doThis() {
+    fs.readFile("random.txt", "utf8", function(error, data) {
+        console.log(data);
+       
+        if (error) {
+            return console.log(error);
+        } else {
+            var dataArr = data.split(",");
+                console.log (dataArr);
+            command = dataArr[0];
+            input = dataArr[1];
+        }
+    });
 }
